@@ -154,7 +154,6 @@ function gameupdate()
     --ennemi or boss
     if (flr(rnd(20))==1 and (player.score==0 or player.score==1 or player.score%game.bosstime>1) ) then 
        pattern(flr(rnd(min(game.lvl*2.5,9))+1), flr(rnd(min(t+1.5,5))),1-rnd(2))
-       --pattern(9, flr(rnd(min(t+1.5,5))),1-rnd(2))
     elseif (player.score%game.bosstime==0 and player.score>0) then
        music(18)
        mobgroup={}
@@ -235,7 +234,7 @@ function make_bullet(x,y,dx,dy,dmg,t,fx)
     b.fx=fx
     add(bullet,b)
     if (t==1) local l={} l.x=x l.y=y add(lzr,l)
-    if (t!=1) then sfx(52,3) else sfx(12,3) end --needs sfx for rockets--
+    if (t!=1) then sfx(52) else sfx(53) end
     return b
 end
    
@@ -319,9 +318,9 @@ end
    end
    
    function powershoot()
-    if (powershot==1) powerjauge=bar.p powershot-=0.001
+    if (powershot==1) powerjauge=bar.p powershot-=0.25
     if (powershot>0) then
-     powershot-=2
+     powershot-=0.25
      bar.p-=1 
      make_bullet(player.x+8,player.y-1,0,-23,8,1,1) 
      fx(player.x+4,player.y-1,rnd(.5)-.75,rnd(.5)-1,.125+rnd(.125),1/30,{10},1) 
@@ -375,8 +374,6 @@ end
    function draw_actor(a)
        if(a.x>-8 and a.x<136 and a.y>-16 and a.y<144) then
         if (a.k==10) then
-         --spr(37,a.x-12-outbnc(72,0,min(a.y,48),48),wobble(a.y-3,(-.5*a.wob)),1,1,true)
-         --spr(37,a.x+12+outbnc(72,0,min(a.y,45),45),wobble(a.y-3,(-.5*a.wob)),1,1)
          if (a.y<48) then
            if ( outbnc(72,0,min(a.y,48),48)<=2 ) fx(a.x-4,wobble(a.y-1.5,(-.5*a.wob)),rnd(.5)-1,2-rnd(3),rnd(1)+2,rnd(.25)+.25,{7,10,9,8},0)
            if ( outbnc(72,0,min(a.y,45),45)<=2 ) fx(a.x+12,wobble(a.y-1.5,(-.5*a.wob)),rnd(.5)+0.5,2-rnd(3),rnd(1)+2,rnd(.25)+.25,{7,10,9,8},0)
@@ -461,7 +458,7 @@ end
     end
     if (a.life <=0) then
      if (a.k>1) then
-       if (a.k==10) then player.score+=10 dodrop(a,1) game.boss=1 game.fade=1 game.overlay=3 game.fadespd=1/30 bullet={} --needs music of some sort--
+       if (a.k==10) then player.score+=10 dodrop(a,1) game.boss=1 game.fade=1 game.overlay=3 game.fadespd=1/30 bullet={}
        else player.score+=1 dodrop(a,.02)
        end
      end
@@ -577,7 +574,7 @@ end
      if(a.franm>=(count(a.anm)+1)) a.franm=1
      a.frame=a.anm[flr(a.franm)]
      if (a.y>130) del(mobgroup,a)
-     if (boxcol(a.x,a.y,8,8,player.x,player.y,16,16)) bar.p+=(bar.w/20) del(mobgroup,a) --needs pickup sfx--
+     if (boxcol(a.x,a.y,8,8,player.x,player.y,16,16)) bar.p+=(bar.w/20) del(mobgroup,a) sfx(55)
     end
     if (a.k==-2) then
      a.y+=0.5 a.franm+=0.5 
@@ -586,9 +583,9 @@ end
      if (a.y>130) del(mobgroup,a)
      if (boxcol(a.x,a.y,8,8,player.x,player.y,16,16)) then 
       if (player.life<4) then 
-       player.life+=1 --needs player life sfx--
+       player.life+=1 sfx(54)
        else
-       player.dmg=min(player.dmg+1,10) --needs player life sfx--
+       player.dmg=min(player.dmg+1,10) sfx(54)
       end
      del(mobgroup,a) 
      end
@@ -739,8 +736,6 @@ end
     return ((abs(ax-bx)*2<=(aw+bw))and(abs(ay-by)*2<=(ah+bh)))
    end
    
-   -- sparks: fx(x,y,rnd(1)-2,rnd(1)-.5,1,.33,{7,10,9,8,2},0)
-   
    function fx(x,y,dx,dy,life,spd,col,t)
     local f={}
     f.x=x
@@ -809,48 +804,6 @@ end
        for sm in all(smks) do circfill(sm.x-3*sm.r/10,sm.y-sm.r/5,4*sm.r/5,6) end
        
    end
-   
-   --function linear(b,e,t,d) --base,end,current time,duration
-   -- if (t==0) return b
-   -- c=t/d
-   -- return (b + c*(e-b))
-   --end
-   
-   --function incube(b,e,t,d)
-   -- if (t==0) return b
-   -- t=t/d 
-   -- return (e-b)*t*t*t+b
-   --end
-   
-   --function outcube(b,e,t,d)
-   -- if (t==0) return b
-   -- t=t/d-1
-   -- return (e-b)*(t*t*t+1)+b
-   --end
-   
-   --function inoutcube(b,e,t,d)
-   -- if (t==0) return b
-   -- t=t/d*2
-   -- if (t<1) then
-   --  return (e-b)/2*t*t*t+b
-   -- else
-   --  t=t-2
-   --  return (e-b)/2*(t*t*t+2)+b
-   -- end
-   --end
-   
-   --function elastic(b,e,t,d)
-   -- if(t==0) return b
-   -- t=t/d
-   -- if(t>=1) return e
-   -- if(t>1/3) then
-   --  t=3/2*(t-1/3)
-   --  return sin(-2*t)*((e-b)/8)*(1-t*t)+(e-b)
-   -- else
-   --  t=2*t
-   --  return -(e-b+((e-b)/8))*t*(t-2)+b
-   -- end
-   --end
    
    function outbnc(b,e,t,d)
     if (t==0) return b
@@ -937,14 +890,14 @@ f6666766676666ffffff66666765f59ff95f56766666ffffffffff00224299aaffffff000fffffff
 fffff75f57ffffffffff66f666755ffffff557666f66ffffffffffff00002299ffffff000ffffffffffaffffffffd11ffffffff7776666d666666667777777f7
 fffff55f55ffffffffff6ff66ff59ffffff95ff66ff6ffffffffffffffff0022fffffff5ffffffffffffffffffff1fffffffffffff77777777777777ffffffff
 fffff99f99fffffffffffff6ffffffffffffffff6fffffffffffffffffffff00fffffff5ffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-00fffffffff0ffffffffff00fff0ffffffffffff166d1fffdd11fffffffffffffffffffffffffffffffffffffff0ffff00000000000000000000000000000000
-00000000fff0ffff00000000f00000fffffffffff1666d1f666d11fffff88ffffff88ffffff88fffffffffffff000fff00000000000000000000000000000000
-f000000fff000ffff000000fff000fffffffffff1dd666df1dddd6d1ff8e88ffff8e88ffff8eeeffffffaffffff0ffff00000000000000000000000000000000
-f00000fff00000ffff00000f0000000ffff000ffd6666661dd666661f888882ff888888ffeee882ffffffffffff00fff00000000000000000000000000000000
-f00000000000000f0000000ff00000ffff00000fddddddd1551dd551f888882ffe888eeff888882ffffffffffff00fff00000000000000000000000000000000
-f000000fff000ffff000000fff000ffffff000ff1d5555dff165551fff8882ffffeee2ffff8882fffffffffff000000f00000000000000000000000000000000
-f00f00fff00000ffff00f00ffff0fffffffffffff1dddd1f16d11ffffff22ffffff22ffffff22fffffffffff0000000000000000000000000000000000000000
-f0ff0fffff0f0ffffff0ff0ffff0ffffffffffff166d1fffffffffffffffffffffffffffffffffffffaffffff000000f00000000000000000000000000000000
+00fffffffff0ffffffffff00fff0fffffffffffff5ffff5f5f5ff5f5fffffffffffffffffffffffffffffffffff0ffff00000000000000000000000000000000
+00000000fff0ffff00000000f00000ffffffffff505ff505f0ffff0ffff88ffffff88ffffff88fffffffffffff000fff00000000000000000000000000000000
+f000000fff000ffff000000fff000ffffffffffff500005f5f5005f5ff8e88ffff8e88ffff8eeeffffffaffffff0ffff00000000000000000000000000000000
+f00000fff00000ffff00000f0000000ffff000ffff0080ffff0a00fff888882ff888888ffeee882ffffffffffff00fff00000000000000000000000000000000
+f00000000000000f0000000ff00000ffff00000fff0800ffff00a0fff888882ffe888eeff888882ffffffffffff00fff00000000000000000000000000000000
+f000000fff000ffff000000fff000ffffff000fff500005f5f5005f5ff8882ffffeee2ffff8882fffffffffff000000f00000000000000000000000000000000
+f00f00fff00000ffff00f00ffff0ffffffffffff505ff505f0ffff0ffff22ffffff22ffffff22fffffffffff0000000000000000000000000000000000000000
+f0ff0fffff0f0ffffff0ff0ffff0fffffffffffff5ffff5f5f5ff5f5ffffffffffffffffffffffffffaffffff000000f00000000000000000000000000000000
 ffffffffffffffffffffff88ff2f22ffff2ffffff8080ffff0111ffffffffffffffffffffffffffffffffffff0f00f0fffffffffffffffffffffffffffffffff
 ffffffffffff8ffffff9889ff89fa82fffffff8f8e88e0ff011111fffffaaffffffffffffffffffffffffffff000000ffff7ffffffffffffffff77ffffffffff
 ffffa8ffff99a9fff8989aff298f9982ffff8fff8888e0ff011111fffff55ffffffffffffffaaffffffffffff0f00f0fff7777fffffffffffff77777ff77ffff
@@ -1139,9 +1092,9 @@ __sfx__
 010c0000001000010010130101301013500100101301013511130111301113500100111301113011130111301113011130111301113011130111301113011130111301113500100001000c1300c1351113011135
 010c00000050000500135501355013555005001355013555155501555015555005001555015550155501555015550155501555015550155501555015550155501555015555005000050010550105551555015555
 010a00002f6232362316600101001010500100101001010511100111001110500100111001110011100111001110011100111001110011100111001110011100111001110500100001000c1000c1051110011105
-000c00000050000500135001350013505005001350013505155001550015505005001550015500155001550015500155001550015500155001550015500155001550015505005000050010500105051550015505
-000c00003c6053c6003c6053c60000000000000c605000000c6050c003246050c00300000000000c605000000c6050c003246050c00300000000000c605000000c6050c003246050000000000000000c60500000
-000c00000c6050c003246050c00300000000000c605000000c6050c003246050c00300000000000c605000000c6050c003246050c00300000000000c605000000c6050c003246050c00300000000000c60500000
+010a00003b6343b6303b6302d6302b6202962028610266153050037500375052d5001550015505005001550015500155001550015500155001550015500155001550015500155001550015505005000050010500
+01080000237353c6002f7342f7302f735000000c605000000c6050c003246050c00300000000000c605000000c6050c003246050c00300000000000c605000000c6050c003246050000000000000000c60500000
+0103000029730007002b730247002d730247002f73000705007000c705007000c6050c003246050c00300000000000c605000000c6050c003246050c00300000000000c605000000c6050c003246050c00300000
 000c00003060530200306053060018100181000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1000c1050c1000c10007100071050c1000c105
 000c0000246050050024605005000050000700111001110011100111001110011100111001110011100111001110011100111001110011100111001110011100111001110500100001000c1000c1051110011105
 000c00001820500200182050020000200002001550015500155001550015500155001550015500155001550015500155001550015500155001550015500155001550015505001000010010500105051550015505
